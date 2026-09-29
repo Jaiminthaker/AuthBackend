@@ -48,19 +48,28 @@ function publicUser(user) {
 
 async function register(req, res) {
   const { name, email, password, phone } = req.body || {};
-  if (!validEmail(email) || !validPassword(password) || !validPhone(phone)) {
+  const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+
+  if (!validEmail(normalizedEmail) || !validPassword(password)) {
     throw createError(
       400,
-      "A valid email, phone number, and password of 8 to 72 bytes are required",
+      "A valid email and password of 8 to 72 bytes are required",
     );
   }
-  if (name !== undefined && (typeof name !== "string" || name.trim().length > 100)) {
-    throw createError(400, "Name must be a string of at most 100 characters");
-  }
 
-  const normalizedEmail = email.trim().toLowerCase();
   if (await User.exists({ email: normalizedEmail })) {
     throw createError(409, "An account with this email already exists");
+  }
+
+  if (!validPhone(phone)) {
+    throw createError(
+      400,
+      "A valid phone number is required",
+    );
+  }
+
+  if (name !== undefined && (typeof name !== "string" || name.trim().length > 100)) {
+    throw createError(400, "Name must be a string of at most 100 characters");
   }
 
   const user = await User.create({
@@ -170,7 +179,7 @@ async function forgotPassword(req, res) {
     throw createError(502, "Unable to send password reset email");
   }
 
-  if (process.env.SMTP_TEST_MODE === "true") {
+  if (process.env.EMAIL_TEST_MODE === "true") {
     response.resetToken = resetToken;
   }
 

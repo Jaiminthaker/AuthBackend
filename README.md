@@ -5,7 +5,7 @@ Backend for the authentication API, built with Node.js and Express.
 ## Setup
 
 Copy `.env.example` to `.env`, then set `MONGODB_URI`, a long random
-`JWT_SECRET`, and the SMTP settings used to send password reset links. The
+`JWT_SECRET`, and the Mailtrap settings used to send password reset links. The
 frontend reset page should be available at
 `FRONTEND_URL/reset-password/:token`.
 
@@ -25,20 +25,19 @@ accepting requests.
 
 Run the API validation and rate-limiter tests with `npm test`. Account creation,
 login, and password updates require a reachable MongoDB instance; reset emails
-require either working SMTP credentials or a Mailtrap Email API token.
+require a valid Mailtrap Email API token.
 
-To send password-reset emails through Mailtrap, set `EMAIL_PROVIDER=mailtrap`,
-provide `MAILTRAP_API_TOKEN`, and set `MAILTRAP_FROM_EMAIL` to an address on your
-verified Mailtrap sending domain. Set `MAILTRAP_FROM_NAME` to the sender name.
-`MAILTRAP_CATEGORY` is optional and defaults to `Password Reset`. Keep the API
-token in `.env`; do not commit it. The Mailtrap Email API requires a verified
-sending domain for live delivery.
+To send password-reset emails through Mailtrap, provide `MAILTRAP_API_TOKEN`, set
+`MAILTRAP_FROM_EMAIL` to an address on your verified Mailtrap sending domain, and
+set `MAILTRAP_FROM_NAME` to the sender name. `MAILTRAP_CATEGORY` is optional and
+defaults to `Password Reset`. Keep the API token in `.env`; do not commit it. The
+Mailtrap Email API requires a verified sending domain for live delivery.
 
-Set `SMTP_TEST_MODE=true` to build password-reset emails with Nodemailer's JSON
-transport instead of sending them through SMTP. This is useful for local testing;
-it requires `SMTP_FROM` and `FRONTEND_URL`, but does not send email. In this mode,
-the forgot-password response includes `resetToken` for testing in tools such as
-Postman. Never enable this mode in production.
+Set `EMAIL_TEST_MODE=true` to build password-reset emails with Nodemailer's JSON
+transport instead of sending through Mailtrap. This is useful for local testing;
+it requires `EMAIL_FROM` or `MAILTRAP_FROM_EMAIL` and `FRONTEND_URL`, but does not
+send email. In this mode, the forgot-password response includes `resetToken` for
+testing in tools such as Postman. Never enable this mode in production.
 
 Check delivery status in [Mailtrap Email Logs](https://mailtrap.io/sending/email_logs).
 

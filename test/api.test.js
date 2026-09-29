@@ -39,6 +39,16 @@ test("health, auth validation, and login rate limiting", async () => {
   });
   assert.equal(invalidRegistration.response.status, 400);
 
+  const existingUser = await request("/api/v1/auth/register", {
+    method: "POST",
+    body: {
+      email: "person@example.com",
+      password: "a-secure-password",
+      phone: "9876543210",
+    },
+  });
+  assert.equal(existingUser.response.status, 409);
+
   const invalidPhone = await request("/api/v1/auth/register", {
     method: "POST",
     body: {
@@ -60,26 +70,21 @@ test("health, auth validation, and login rate limiting", async () => {
   );
   assert.equal(unauthenticatedChange.response.status, 401);
 
-  const smtpSettings = [
-    "SMTP_HOST",
-    "SMTP_PORT",
-    "SMTP_USER",
-    "SMTP_PASS",
-    "SMTP_FROM",
+  const emailSettings = [
     "FRONTEND_URL",
-    "SMTP_TEST_MODE",
-    "EMAIL_PROVIDER",
+    "EMAIL_FROM",
+    "EMAIL_TEST_MODE",
     "MAILTRAP_API_TOKEN",
     "MAILTRAP_FROM_EMAIL",
     "MAILTRAP_FROM_NAME",
     "MAILTRAP_CATEGORY",
   ];
   const originalSettings = new Map(
-    smtpSettings.map((setting) => [setting, process.env[setting]]),
+    emailSettings.map((setting) => [setting, process.env[setting]]),
   );
   const originalFindOne = User.findOne;
   const originalFetch = globalThis.fetch;
-  smtpSettings.forEach((setting) => delete process.env[setting]);
+  emailSettings.forEach((setting) => delete process.env[setting]);
   try {
     User.findOne = async () => null;
     const unregisteredEmail = await request("/api/v1/auth/forgot-password", {
@@ -89,9 +94,9 @@ test("health, auth validation, and login rate limiting", async () => {
     assert.equal(unregisteredEmail.response.status, 404);
     assert.equal(unregisteredEmail.body.message, "Sorry, you are not register.");
 
-    process.env.SMTP_FROM = "Auth API <no-reply@example.test>";
+    process.env.EMAIL_FROM = "Auth API <no-reply@example.test>";
     process.env.FRONTEND_URL = "http://localhost:3000";
-    process.env.SMTP_TEST_MODE = "true";
+    process.env.EMAIL_TEST_MODE = "true";
     User.findOne = async () => ({
       email: "person@example.com",
       save: async () => {},
@@ -104,8 +109,7 @@ test("health, auth validation, and login rate limiting", async () => {
     assert.equal(forgotPassword.body.status, "success");
     assert.match(forgotPassword.body.resetToken, /^[a-f0-9]{64}$/);
 
-    process.env.SMTP_TEST_MODE = "false";
-    process.env.EMAIL_PROVIDER = "mailtrap";
+    process.env.EMAIL_TEST_MODE = "false";
     process.env.MAILTRAP_API_TOKEN = "test-mailtrap-token";
     process.env.MAILTRAP_FROM_EMAIL = "hello@example.test";
     process.env.MAILTRAP_FROM_NAME = "Auth API";

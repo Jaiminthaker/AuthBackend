@@ -157,7 +157,7 @@ File: `src/utils/sendEmail.js`
 What it does:
 
 - checks whether email settings are configured
-- sends the password reset email using SMTP or Mailtrap
+- sends the password reset email through Mailtrap
 - supports test mode for local development
 
 This helps the project work safely in testing without sending real emails accidentally.
