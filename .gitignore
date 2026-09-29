@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 
+PROJECT_EXPLAINED.md
+
 # Environment files
 .env
 .env.*
