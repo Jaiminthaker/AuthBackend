@@ -1,35 +1,71 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.0.0",
   "info": {
     "title": "Authentication API",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "description": ""
   },
   "servers": [
     {
       "url": "/"
     }
   ],
+  "tags": [
+    {
+      "name": "Health"
+    },
+    {
+      "name": "Auth"
+    }
+  ],
   "paths": {
-    "/api/v1/health": {
+    "/": {
       "get": {
-        "summary": "Check API health",
+        "description": "",
         "responses": {
           "200": {
-            "description": "API is healthy"
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/health/": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Check API health",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
     },
     "/api/v1/auth/register": {
       "post": {
+        "tags": [
+          "Auth"
+        ],
         "summary": "Register a user",
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "password", "phone"],
+                "required": [
+                  "email",
+                  "password",
+                  "phone"
+                ],
                 "properties": {
                   "name": {
                     "type": "string"
@@ -49,30 +85,31 @@
               }
             }
           }
-        },
-        "responses": {
-          "201": {
-            "description": "User registered"
-          },
-          "400": {
-            "description": "Invalid registration data"
-          },
-          "409": {
-            "description": "Email is already registered"
-          }
         }
       }
     },
     "/api/v1/auth/login": {
       "post": {
+        "tags": [
+          "Auth"
+        ],
         "summary": "Log in",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email", "password"],
+                "required": [
+                  "email",
+                  "password"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -86,26 +123,21 @@
               }
             }
           }
-        },
-        "responses": {
-          "200": {
-            "description": "Login successful"
-          },
-          "400": {
-            "description": "Invalid credentials format"
-          },
-          "401": {
-            "description": "Email or password is incorrect"
-          },
-          "429": {
-            "description": "Too many login attempts"
-          }
         }
       }
     },
     "/api/v1/auth/change-password": {
       "patch": {
-        "summary": "Change the authenticated user's password",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Change the authenticated user password",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
         "security": [
           {
             "bearerAuth": []
@@ -117,7 +149,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["currentPassword", "newPassword"],
+                "required": [
+                  "currentPassword",
+                  "newPassword"
+                ],
                 "properties": {
                   "currentPassword": {
                     "type": "string",
@@ -131,27 +166,30 @@
               }
             }
           }
-        },
-        "responses": {
-          "200": {
-            "description": "Password changed"
-          },
-          "401": {
-            "description": "Authentication or current password failed"
-          }
         }
       }
     },
     "/api/v1/auth/forgot-password": {
       "post": {
+        "tags": [
+          "Auth"
+        ],
         "summary": "Request a password reset email",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["email"],
+                "required": [
+                  "email"
+                ],
                 "properties": {
                   "email": {
                     "type": "string",
@@ -161,23 +199,16 @@
               }
             }
           }
-        },
-        "responses": {
-          "200": {
-            "description": "Reset link requested"
-          },
-          "400": {
-            "description": "Invalid email"
-          },
-          "503": {
-            "description": "Email is not configured"
-          }
         }
       }
     },
     "/api/v1/auth/reset-password/{token}": {
       "post": {
+        "tags": [
+          "Auth"
+        ],
         "summary": "Reset a password using the emailed token",
+        "description": "",
         "parameters": [
           {
             "name": "token",
@@ -188,13 +219,20 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["password"],
+                "required": [
+                  "password"
+                ],
                 "properties": {
                   "password": {
                     "type": "string",
@@ -203,14 +241,6 @@
                 }
               }
             }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Password reset"
-          },
-          "400": {
-            "description": "Invalid or expired token"
           }
         }
       }

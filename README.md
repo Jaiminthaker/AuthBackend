@@ -20,6 +20,14 @@ npm install
 npm run dev
 ```
 
+Swagger UI is available at `http://localhost:5000/api-docs`. The OpenAPI
+document is generated from the Express routes before the server starts. To
+regenerate it manually after changing routes or Swagger annotations, run:
+
+```sh
+npm run swagger:generate
+```
+
 The server listens on port `5000` by default. It connects to MongoDB before
 accepting requests.
 

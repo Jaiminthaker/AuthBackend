@@ -4,8 +4,9 @@
   "private": true,
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "swagger:generate": "node src/swagger.js",
+    "start": "npm run swagger:generate && node src/server.js",
+    "dev": "npm run swagger:generate && nodemon src/server.js",
     "test": "node --test"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "swagger-autogen": "^2.23.7"
   }
 }
