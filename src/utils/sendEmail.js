@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const { passwordResetTemplate } = require("../templates/passwordReset");
 
 function isEmailConfigured() {
   const testMode = process.env.EMAIL_TEST_MODE === "true";
@@ -24,13 +25,13 @@ async function sendPasswordResetEmail(email, resetToken) {
   }
 
   const frontendUrl = process.env.FRONTEND_URL.replace(/\/+$/, "");
+  
   const resetUrl = `${frontendUrl}/reset-password/${encodeURIComponent(resetToken)}`;
-  const message = {
-    subject: "Reset your password",
-    text: `Use this link to reset your password. It expires in 15 minutes: ${resetUrl}`,
-    html: `<p>Use the link below to reset your password. It expires in 15 minutes.</p><p><a href="${resetUrl}">Reset password</a></p>`,
-  };
+  
+  // get email template from the template
+  const message = passwordResetTemplate(resetUrl);
 
+  // Test mode
   if (process.env.EMAIL_TEST_MODE === "true") {
     const transporter = nodemailer.createTransport({ jsonTransport: true });
     return transporter.sendMail({
