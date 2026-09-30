@@ -17,10 +17,16 @@ function errorHandler(error, req, res, next) {
     console.error(error);
   }
 
-  res.status(statusCode).json({
+  const response = {
     status: "error",
     message,
-  });
+  };
+
+  if (Array.isArray(error.errors) && error.errors.length > 0) {
+    response.errors = error.errors;
+  }
+
+  return res.status(statusCode).json(response);
 }
 
 module.exports = errorHandler;

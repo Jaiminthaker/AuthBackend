@@ -2,12 +2,35 @@ const assert = require("node:assert/strict");
 const { after, test } = require("node:test");
 const app = require("../src/app");
 const User = require("../src/model/user.model");
+const { registerSchema } = require("../src/validation/auth.validation");
 
 const server = app.listen(0);
 const baseUrl = `http://127.0.0.1:${server.address().port}`;
 
 after(() => {
   server.close();
+});
+
+test("Zod registration validation normalizes values and enforces auth limits", () => {
+  const validRegistration = registerSchema.safeParse({
+    name: " Alice ",
+    email: " ALICE@EXAMPLE.COM ",
+    password: "a-secure-password",
+    phone: " (555) 123-4567 ",
+  });
+
+  assert.equal(validRegistration.success, true);
+  assert.equal(validRegistration.data.name, "Alice");
+  assert.equal(validRegistration.data.email, "alice@example.com");
+  assert.equal(validRegistration.data.phone, "(555) 123-4567");
+  assert.equal(
+    registerSchema.safeParse({
+      email: "alice@example.com",
+      password: "😀".repeat(19),
+      phone: "5551234567",
+    }).success,
+    false,
+  );
 });
 
 async function request(path, { method = "GET", body, headers = {} } = {}) {

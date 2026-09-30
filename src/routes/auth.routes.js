@@ -2,6 +2,15 @@ const express = require("express");
 const authController = require("../controllers/auth.controllers");
 const { authenticate } = require("../middlewares/auth.middlewares");
 const { loginRateLimiter } = require("../middlewares/rateLimiter.middlewares");
+const {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordParamsSchema,
+  resetPasswordSchema,
+  validateRequest,
+} = require("../validation/auth.validation");
 
 const router = express.Router();
 
@@ -10,6 +19,7 @@ router.post(
   /* #swagger.tags = ['Auth'] */
   /* #swagger.summary = 'Register a user' */
   /* #swagger.requestBody = { required: true, content: { 'application/json': { schema: { type: 'object', required: ['email', 'password', 'phone'], properties: { name: { type: 'string' }, email: { type: 'string', format: 'email' }, password: { type: 'string', minLength: 8 }, phone: { type: 'string' } } } } } } */
+  validateRequest({ body: registerSchema }),
   authController.register,
 );
 router.post(
@@ -18,6 +28,7 @@ router.post(
   /* #swagger.summary = 'Log in' */
   /* #swagger.requestBody = { required: true, content: { 'application/json': { schema: { type: 'object', required: ['email', 'password'], properties: { email: { type: 'string', format: 'email' }, password: { type: 'string', minLength: 8 } } } } } } */
   loginRateLimiter,
+  validateRequest({ body: loginSchema }),
   authController.login,
 );
 router.patch(
@@ -27,6 +38,7 @@ router.patch(
   /* #swagger.security = [{ bearerAuth: [] }] */
   /* #swagger.requestBody = { required: true, content: { 'application/json': { schema: { type: 'object', required: ['currentPassword', 'newPassword'], properties: { currentPassword: { type: 'string', minLength: 8 }, newPassword: { type: 'string', minLength: 8 } } } } } } */
   authenticate,
+  validateRequest({ body: changePasswordSchema }),
   authController.changePassword,
 );
 router.post(
@@ -34,6 +46,7 @@ router.post(
   /* #swagger.tags = ['Auth'] */
   /* #swagger.summary = 'Request a password reset email' */
   /* #swagger.requestBody = { required: true, content: { 'application/json': { schema: { type: 'object', required: ['email'], properties: { email: { type: 'string', format: 'email' } } } } } } } */
+  validateRequest({ body: forgotPasswordSchema }),
   authController.forgotPassword,
 );
 router.post(
@@ -41,6 +54,10 @@ router.post(
   /* #swagger.tags = ['Auth'] */
   /* #swagger.summary = 'Reset a password using the emailed token' */
   /* #swagger.requestBody = { required: true, content: { 'application/json': { schema: { type: 'object', required: ['password'], properties: { password: { type: 'string', minLength: 8 } } } } } } } */
+  validateRequest({
+    body: resetPasswordSchema,
+    params: resetPasswordParamsSchema,
+  }),
   authController.resetPassword,
 );
 
