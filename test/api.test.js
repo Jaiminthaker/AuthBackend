@@ -196,3 +196,27 @@ test("health, auth validation, and login rate limiting", async () => {
   const missingRoute = await request("/not-found");
   assert.equal(missingRoute.response.status, 404);
 });
+
+test("global error handler sanitizes rejected async route errors", async () => {
+  const originalFindOne = User.findOne;
+  const originalConsoleError = console.error;
+  User.findOne = async () => {
+    throw new Error("sensitive database details");
+  };
+  console.error = () => {};
+
+  try {
+    const result = await request("/api/v1/auth/forgot-password", {
+      method: "POST",
+      body: { email: "person@example.com" },
+    });
+
+    assert.equal(result.response.status, 500);
+    assert.equal(result.body.status, "error");
+    assert.equal(result.body.message, "Internal server error");
+    assert.equal(result.body.errors, undefined);
+  } finally {
+    User.findOne = originalFindOne;
+    console.error = originalConsoleError;
+  }
+});
