@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const User = require("../model/user.model");
 const ApiError = require("../utils/apiError");
 const apiResponse = require("../utils/apiResponse");
+const asyncHandler = require("../utils/asyncHandler");
 const { generateToken } = require("../utils/generateToken");
 const {
   isEmailConfigured,
@@ -93,15 +94,7 @@ async function forgotPassword(req, res) {
   user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
   await user.save();
 
-  try {
-    await sendPasswordResetEmail(user.email, resetToken);
-  } catch (error) {
-    console.error("Password reset email delivery failed:", error);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await user.save();
-    throw new ApiError(502, "Unable to send password reset email");
-  }
+  await sendPasswordResetEmail(user.email, resetToken);
 
   if (process.env.EMAIL_TEST_MODE === "true") {
     responseData.resetToken = resetToken;
@@ -139,9 +132,9 @@ async function resetPassword(req, res) {
 }
 
 module.exports = {
-  register,
-  login,
-  changePassword,
-  forgotPassword,
-  resetPassword,
+  register: asyncHandler(register),
+  login: asyncHandler(login),
+  changePassword: asyncHandler(changePassword),
+  forgotPassword: asyncHandler(forgotPassword),
+  resetPassword: asyncHandler(resetPassword),
 };
